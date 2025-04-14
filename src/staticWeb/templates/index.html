@@ -12,6 +12,14 @@
          <input type="number" name="top_x_clientes" value="{{ top_x_clientes }}" min="1" max="10">
          <label for="top_x_incidents">Selecciona cuántos resultados mostrar para top incidencias:</label>
          <input type="number" name="top_x_incidents" value="{{ top_x_incidents }}" min="1" max="5">
+
+         <label for="top_x_employees">Selecciona cuántos empleados mostrar:</label>
+         <input type="number" name="top_x_employees" value="{{ top_x_employees }}" min="1" max="14">
+
+         <br><br>
+         <input type="checkbox" name="show_employees_times" id="show_employees_times" {% if show_employees_times %}checked{% endif %}>
+         <label for="show_employee_times">Mostrar empleados con más tiempo dedicado a la resolución de incidentes</label>
+
          <br><br>
          <button type="submit">Actualizar</button>
      </form>
@@ -21,6 +29,11 @@
 
      <h2>Top Tipos de incidencias con mayor tiempo medio de resolución</h2>
      {{ top_incidents_type_by_resolution_time|safe }}
+
+     {% if top_employees_by_time %}
+     <h2>Empleados que más tiempo han dedicado a resolver incidentes</h2>
+     {{ top_employees_by_time|safe }}
+     {% endif %}
 
 
  </body>

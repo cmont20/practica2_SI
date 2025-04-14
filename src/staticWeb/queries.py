@@ -33,3 +33,14 @@ def top_incidents_type_by_resolution_time(limit):
         ORDER BY AVG_RESOLUTION_TIME DESC
         LIMIT {limit}
         """)
+
+
+def top_employees_by_resolution_time(limit):
+    return query_to_dataframe(f"""
+         SELECT E.NOMBRE AS EMPLOYEE, SUM(C.TIEMPO) AS TOTAL_TIME
+         FROM CONTACTO C
+         JOIN EMPLEADO E ON C.EMPLEADO_ID = E.ID_EMPLEADO
+         GROUP BY E.NOMBRE
+         ORDER BY TOTAL_TIME DESC
+         LIMIT {limit}
+         """)
