@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+ <html LANG="es">
+ <head>
+     <meta charset="UTF-8">
+     <title>CMI</title>
+ </head>
+ <body>
+     <h1>Cuadro de Mando Integral (CMI)</h1>
+
+     <form method="post">
+         <label for="top_x_clientes">Selecciona cuántos resultados mostrar para top clientes:</label>
+         <input type="number" name="top_x_clientes" value="{{ top_x_clientes }}" min="1" max="10">
+         <label for="top_x_incidents">Selecciona cuántos resultados mostrar para top incidencias:</label>
+         <input type="number" name="top_x_incidents" value="{{ top_x_incidents }}" min="1" max="5">
+         <br><br>
+         <button type="submit">Actualizar</button>
+     </form>
+
+     <h2>Top Clientes con más incidencias</h2>
+     {{ top_clients_most_incidents|safe }}
+
+     <h2>Top Tipos de incidencias con mayor tiempo medio de resolución</h2>
+     {{ top_incidents_type_by_resolution_time|safe }}
+
+
+ </body>
+ </html>
