@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from sphinx.util import requests
 
 from staticWeb import queries
 
@@ -31,3 +32,77 @@ def index():
                                classes='table table-bordered'),
                            top_employees_by_time=top_employees_df.to_html(
                                classes='table table-bordered') if top_employees_df is not None else None)
+
+
+def get_cve():
+    url = "https://cve.circl.lu/api/last"
+    response = requests.get(url)
+    data = response.json()
+
+    vulnerabilities = []
+
+    for item in data:
+        if len(vulnerabilities) >= 10:
+            break
+        if "vulnerabilities" in item:
+            for vul in item["vulnerabilities"]:
+                cve_id = vul.get("cve", "Sin ID")
+                fecha = vul.get("discovery_date", "Sin fecha")
+                cwe_id = vul.get("cwe", {}).get("id", "Sin CWE")
+                cwe_nombre = vul.get("cwe", {}).get("name", "")
+                descripcion = next(
+                    (note.get("text") for note in vul.get("notes", []) if note.get("category") == "description"),
+                    "Sin descripción"
+                )
+                attack_complexity = (
+                    vul.get("scores", [{}])[0]
+                    .get("cvss_v3", {})
+                    .get("attackComplexity", "Sin severidad")
+                )
+                vulnerabilities.append({
+                    "id": cve_id,
+                    "fecha": fecha,
+                    "descripcion": descripcion,
+                    "cwe": f"{cwe_id} {cwe_nombre}",
+                    "severidad": attack_complexity
+                })
+
+        elif "cveMetadata" in item and "containers" in item:
+            cve_id = item.get("cveMetadata", {}).get("cveId", "Sin ID")
+            fecha = item.get("cveMetadata", {}).get("datePublished", "Sin fecha")
+            descripcion = next(
+                (desc.get("value") for desc in item.get("containers", {}).get("cna", {}).get("descriptions", [])
+                 if desc.get("lang") == "en"),
+                "Sin descripción"
+            )
+            cwe_id = "Sin CWE"
+            cwe_nombre = ""
+            for pt in item.get("containers", {}).get("cna", {}).get("problemTypes", []):
+                for desc in pt.get("descriptions", []):
+                    if desc.get("lang") == "en":
+                        cwe_id = desc.get("cweId", "Sin CWE")
+                        cwe_nombre = desc.get("description", "Sin CWE-descripcion")
+                        break
+            severidad = next(
+                (
+                    m.get("cvssV3_1", {}).get("attackComplexity")
+                    for m in item.get("containers", {}).get("cna", {}).get("metrics", [])
+                    if "cvssV3_1" in m
+                ),
+                "Sin severidad"
+            )
+            vulnerabilities.append({
+                "id": cve_id,
+                "fecha": fecha,
+                "descripcion": descripcion,
+                "cwe": f"{cwe_id} {cwe_nombre}",
+                "severidad": severidad
+            })
+
+    return vulnerabilities
+
+
+@app.route("/last_vulnerabilities")
+def last_vulnerabilities():
+    cves = get_cve()
+    return render_template("last_vulnerabilities.html", cves=cves)
