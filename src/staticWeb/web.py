@@ -1,13 +1,20 @@
 from flask import Flask, request, render_template, send_file
 from sphinx.util import requests
 from src.staticWeb.reports.pdf_reports import generate_pdf_report
+from flask_login import login_required, current_user
+from src.staticWeb.auth import auth_bp, login_manager
 
 from staticWeb import queries
 
 app = Flask(__name__)
+app.secret_key = 'TU_SECRET_KEY_AQUI'
+
+login_manager.init_app(app)
+app.register_blueprint(auth_bp)
 
 
 @app.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     top_x_clientes = 0
     top_x_incidents = 0
@@ -104,12 +111,14 @@ def get_cve():
 
 
 @app.route("/last_vulnerabilities")
+@login_required
 def last_vulnerabilities():
     cves = get_cve()
     return render_template("last_vulnerabilities.html", cves=cves)
 
 
 @app.route('/report/pdf')
+@login_required
 def report_pdf():
     from io import BytesIO
     buf = BytesIO()
