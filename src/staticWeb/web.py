@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, request, render_template, send_file
 from sphinx.util import requests
+from src.staticWeb.reports.pdf_reports import generate_pdf_report
 
 from staticWeb import queries
 
@@ -106,3 +107,17 @@ def get_cve():
 def last_vulnerabilities():
     cves = get_cve()
     return render_template("last_vulnerabilities.html", cves=cves)
+
+
+@app.route('/report/pdf')
+def report_pdf():
+    from io import BytesIO
+    buf = BytesIO()
+    generate_pdf_report(buf, top_n=5)
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype='application/pdf',
+        attachment_filename='reporte.pdf',
+        as_attachment=False
+    )
