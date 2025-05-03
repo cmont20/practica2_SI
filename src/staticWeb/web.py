@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template, send_file
 from sphinx.util import requests
 from src.staticWeb.reports.pdf_reports import generate_pdf_report
-from flask_login import login_required, current_user
+from flask_login import login_required
 from src.staticWeb.auth import auth_bp, login_manager
+from src.staticWeb.queries import *
 
-from staticWeb import queries
 
 app = Flask(__name__)
 app.secret_key = 'TU_SECRET_KEY_AQUI'
@@ -27,11 +27,11 @@ def index():
         top_x_employees = int(request.form['top_x_employees'])
         show_employees_times = 'show_employees_times' in request.form
 
-    top_clients_most_incidents_df = queries.top_clients_most_incidents(top_x_clientes)
-    top_incidents_type_by_resolution_time_df = queries.top_incidents_type_by_resolution_time(top_x_incidents)
+    top_clients_most_incidents_df = top_clients_most_incidents(top_x_clientes)
+    top_incidents_type_by_resolution_time_df = top_incidents_type_by_resolution_time(top_x_incidents)
 
     if show_employees_times:
-        top_employees_df = queries.top_employees_by_resolution_time(top_x_employees)
+        top_employees_df = top_employees_by_resolution_time(top_x_employees)
 
     return render_template("index.html",
                            top_clients_most_incidents=top_clients_most_incidents_df.to_html(
@@ -127,6 +127,6 @@ def report_pdf():
     return send_file(
         buf,
         mimetype='application/pdf',
-        attachment_filename='reporte.pdf',
+        # attachment_filename='reporte.pdf',
         as_attachment=False
     )
