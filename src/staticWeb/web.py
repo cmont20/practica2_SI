@@ -4,6 +4,8 @@ from src.staticWeb.reports.pdf_reports import generate_pdf_report
 from flask_login import login_required
 from src.staticWeb.auth import auth_bp, login_manager
 from src.staticWeb.queries import *
+from src.staticWeb.model import *
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -130,3 +132,26 @@ def report_pdf():
         # attachment_filename='reporte.pdf',
         as_attachment=False
     )
+
+
+@app.route("/classify", methods=["GET", "POST"])
+def classify():
+    result = None
+    if request.method == "POST":
+        fecha_apertura = request.form.get("fecha_apertura")
+        fecha_cierre = request.form.get("fecha_cierre")
+        fecha_apertura = int(datetime.strptime(fecha_apertura, "%Y-%m-%d").strftime("%Y%m%d"))
+        fecha_cierre = int(datetime.strptime(fecha_cierre, "%Y-%m-%d").strftime("%Y%m%d"))
+        data = {
+            "cliente": int(request.form["cliente"]),
+            "fecha_apertura": fecha_apertura,
+            "fecha_cierre": fecha_cierre,
+            "es_mantenimiento": int(request.form["es_mantenimiento"]),
+            "tipo_incidencia": int(request.form["tipo_incidencia"])
+        }
+
+        model = request.form["model"]
+        prediction = predict_model(model, data)
+        result = "CRÍTICO" if prediction == 1 else "NO CRÍTICO"
+
+    return render_template("classify.html", result=result)
