@@ -137,6 +137,7 @@ def report_pdf():
 @app.route("/classify", methods=["GET", "POST"])
 def classify():
     result = None
+    graphic = None
     if request.method == "POST":
         fecha_apertura = request.form.get("fecha_apertura")
         fecha_cierre = request.form.get("fecha_cierre")
@@ -151,7 +152,7 @@ def classify():
         }
 
         model = request.form["model"]
-        prediction = predict_model(model, data)
+        prediction, graphic = predict_model(model, data)
         result = "CRÍTICO" if prediction == 1 else "NO CRÍTICO"
 
-    return render_template("classify.html", result=result)
+    return render_template("classify.html", result=result, graphic=graphic)

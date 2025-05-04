@@ -1,5 +1,7 @@
 import json
 import pandas as pd
+import matplotlib.pyplot as plt
+import graphviz
 from sklearn.model_selection import train_test_split
 from sklearn import linear_model
 from sklearn import tree
@@ -7,7 +9,9 @@ from sklearn.ensemble import RandomForestClassifier
 from pathlib import Path
 
 base = Path(__file__).resolve().parent
-path_data = base/".."/"data"/"data_clasified.json"
+path_data = base / ".." / "data" / "data_clasified.json"
+image_path = base / "static"
+
 
 # models -> regression, tree, forest
 
@@ -64,17 +68,54 @@ def predict_model(model_name, input_data):
     data = load_data()
     x_train, x_test, y_train, y_test = process(data)
     prediction = None
+    graphic = None
     if model_name == "regression":
         regr_model = linear_regression(x_train, y_train)
-        y_prediction = regr_model.predict([list(input_data.values())])[0]
+        y_pred = regr_model.predict([list(input_data.values())])
+        y_prediction = y_pred[0]
         prediction = int(y_prediction >= 5)
+        graphic = plot_regression(y_test, y_pred)
 
     elif model_name == "tree":
         model = tree_decision(x_train, y_train)
         prediction = model.predict([list(input_data.values())])[0]
+        graphic = tree_graph(model)
 
     elif model_name == "forest":
         model = random_forest(x_train, y_train)
         prediction = model.predict([list(input_data.values())])[0]
+        graphic = export_random_forest(model)
 
-    return prediction
+    return prediction, graphic
+
+
+def plot_regression(y_test, y_pred):
+    plt.figure()
+    plt.scatter(range(len(y_test)), y_test, color="black", label="Datos reales")
+    plt.scatter(range(len(y_pred)), y_pred, color="blue", label="Predicciones")
+    plt.title("Regresión lineal: Predicción de criticidad")
+    plt.xlabel("ID Cliente (aproximación visual)")
+    plt.ylabel("Crítico (1) / No crítico (0)")
+    plt.legend()
+    real_path = image_path / "regression.png"
+    plt.savefig(real_path)
+    plt.close()
+    return "regression.png"
+
+
+def tree_graph(clf):
+    dot_data = tree.export_graphviz(clf, out_file=None, filled=True, rounded=True, special_characters=True,
+                                    feature_names=['cliente_id', 'fecha_apertura', 'fecha_cierre', 'es_mantenimiento',
+                                                   'tipo_incidencia'],
+                                    class_names=['No crítico', 'Crítico'])
+    graph = graphviz.Source(dot_data)
+    graph.format = 'png'
+    graph.render(filename="tree", directory=image_path, format="png", cleanup=True)
+    return "tree.png"
+
+
+def export_random_forest(clf):
+    path = image_path / "random_forest"
+    tree.export_decision_tree_graph(clf.estimators_[0], path)
+    return path
+

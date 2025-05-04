@@ -37,5 +37,12 @@
     {% if result %}
         <h2>Resultado: {{ result }}</h2>
     {% endif %}
+
+    {% if graphic %}
+        <h2>Gráfica de predicción del modelo</h2>
+<       <img src="{{ url_for('static', filename=graphic) }}" width="500" alt="Gráfico">
+    {% endif %}
+
+
 </body>
 </html>
