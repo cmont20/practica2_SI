@@ -69,24 +69,25 @@ def predict_model(model_name, input_data):
     x_train, x_test, y_train, y_test = process(data)
     prediction = None
     graphic = None
+    graphics = None
     if model_name == "regression":
         regr_model = linear_regression(x_train, y_train)
         y_pred = regr_model.predict([list(input_data.values())])
         y_prediction = y_pred[0]
         prediction = int(y_prediction >= 5)
-        graphic = plot_regression(y_test, y_pred)
+        graphic, graphics = plot_regression(y_test, y_pred)
 
     elif model_name == "tree":
         model = tree_decision(x_train, y_train)
         prediction = model.predict([list(input_data.values())])[0]
-        graphic = tree_graph(model)
+        graphic, graphics = tree_graph(model)
 
     elif model_name == "forest":
         model = random_forest(x_train, y_train)
         prediction = model.predict([list(input_data.values())])[0]
-        graphic = export_random_forest(model)
+        graphic, graphics = export_random_forest(model)
 
-    return prediction, graphic
+    return prediction, graphic, graphics
 
 
 def plot_regression(y_test, y_pred):
@@ -100,7 +101,7 @@ def plot_regression(y_test, y_pred):
     real_path = image_path / "regression.png"
     plt.savefig(real_path)
     plt.close()
-    return "regression.png"
+    return "regression.png", None
 
 
 def tree_graph(clf):
@@ -111,10 +112,10 @@ def tree_graph(clf):
     graph = graphviz.Source(dot_data)
     graph.format = 'png'
     graph.render(filename="tree", directory=image_path, format="png", cleanup=True)
-    return "tree.png"
+    return "tree.png", None
 
 
-def export_random_forest(clf):
+"""def export_random_forest(clf):
     estimator = clf.estimators_[0]
     dot_data = tree.export_graphviz(estimator, out_file=None, filled=True, rounded=True, special_characters=True,
                                     feature_names=['cliente_id', 'fecha_apertura', 'fecha_cierre', 'es_mantenimiento',
@@ -126,3 +127,21 @@ def export_random_forest(clf):
     output_path = image_path / "random_forest"
     graph.render(output_path, cleanup=True)
     return "random_forest.png"
+"""
+
+
+def export_random_forest(clf):
+    graphics = []
+    for i, estimator in enumerate(clf.estimators_):
+        dot_data = tree.export_graphviz(estimator, out_file=None, filled=True, rounded=True, special_characters=True,
+                                        feature_names=['cliente_id', 'fecha_apertura', 'fecha_cierre',
+                                                       'es_mantenimiento',
+                                                       'tipo_incidencia'],
+                                        class_names=['No crítico', 'Crítico'])
+        graph = graphviz.Source(dot_data)
+        graph.format = "png"
+        output_path = image_path / f"random_forest{i + 1}"
+        graph.render(output_path, cleanup=True)
+        graphics.append(f"random_forest{i + 1}.png")
+
+    return None, graphics

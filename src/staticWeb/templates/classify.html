@@ -43,6 +43,15 @@
 <       <img src="{{ url_for('static', filename=graphic) }}" width="500" alt="Gráfico">
     {% endif %}
 
+    {% if graphics %}
+        <h2>Gráficas de los árboles del modelo Random Forest</h2>
+        <div>
+            {% for graph in graphics %}
+                <img src="{{ url_for('static', filename=graph) }}" width="500" alt="Árbol de decisión {{ loop.index }}">
+            {% endfor %}
+        </div>
+    {% endif %}
+
 
 </body>
 </html>
