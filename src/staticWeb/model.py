@@ -66,8 +66,8 @@ def predict_model(model_name, input_data):
     prediction = None
     if model_name == "regression":
         regr_model = linear_regression(x_train, y_train)
-        y_prediction = regr_model.predict(x_test)
-        prediction = [1 if x >= 0.5 else 0 for x in y_prediction]
+        y_prediction = regr_model.predict([list(input_data.values())])[0]
+        prediction = int(y_prediction >= 5)
 
     elif model_name == "tree":
         model = tree_decision(x_train, y_train)
