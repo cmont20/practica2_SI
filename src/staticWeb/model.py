@@ -115,7 +115,14 @@ def tree_graph(clf):
 
 
 def export_random_forest(clf):
-    path = image_path / "random_forest"
-    tree.export_decision_tree_graph(clf.estimators_[0], path)
-    return path
+    estimator = clf.estimators_[0]
+    dot_data = tree.export_graphviz(estimator, out_file=None, filled=True, rounded=True, special_characters=True,
+                                    feature_names=['cliente_id', 'fecha_apertura', 'fecha_cierre', 'es_mantenimiento',
+                                                   'tipo_incidencia'],
+                                    class_names=['No crítico', 'Crítico'])
 
+    graph = graphviz.Source(dot_data)
+    graph.format = 'png'
+    output_path = image_path / "random_forest"
+    graph.render(output_path, cleanup=True)
+    return "random_forest.png"
