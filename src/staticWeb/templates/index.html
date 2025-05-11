@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+ <html LANG="es">
+ <head>
+     <meta charset="UTF-8">
+     <title>CMI</title>
+ </head>
+ <body>
+    <div style="text-align: right; margin: 1rem;">
+        <a href="{{ url_for('last_vulnerabilities') }}" class="btn btn-dark">Vulnerabilidades</a>
+        <a href="{{ url_for('report_pdf') }}">Ver Informe PDF</a>
+        <a href="{{ url_for('classify') }}">Clasificacion</a>
+        <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+    </div>
+     <h1>Cuadro de Mando Integral (CMI)</h1>
+
+     <form method="post">
+         <label for="top_x_clientes">Selecciona cuántos resultados mostrar para top clientes:</label>
+         <input type="number" name="top_x_clientes" value="{{ top_x_clientes }}" min="1" max="10">
+         <label for="top_x_incidents">Selecciona cuántos resultados mostrar para top incidencias:</label>
+         <input type="number" name="top_x_incidents" value="{{ top_x_incidents }}" min="1" max="5">
+
+         <label for="top_x_employees">Selecciona cuántos empleados mostrar:</label>
+         <input type="number" name="top_x_employees" value="{{ top_x_employees }}" min="1" max="14">
+
+         <br><br>
+         <input type="checkbox" name="show_employees_times" id="show_employees_times" {% if show_employees_times %}checked{% endif %}>
+         <label for="show_employee_times">Mostrar empleados con más tiempo dedicado a la resolución de incidentes</label>
+
+         <br><br>
+         <button type="submit">Actualizar</button>
+     </form>
+
+     <h2>Top Clientes con más incidencias</h2>
+     {{ top_clients_most_incidents|safe }}
+
+     <h2>Top Tipos de incidencias con mayor tiempo medio de resolución</h2>
+     {{ top_incidents_type_by_resolution_time|safe }}
+
+     {% if top_employees_by_time %}
+     <h2>Empleados que más tiempo han dedicado a resolver incidentes</h2>
+     {{ top_employees_by_time|safe }}
+     {% endif %}
+
+
+ </body>
+ </html>

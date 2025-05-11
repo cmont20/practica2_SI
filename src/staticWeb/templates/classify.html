@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clasificación de clientes críticos</title>
+</head>
+<body>
+    <h1>Clasificar clientes</h1>
+    <form method="post">
+        <label>ID Cliente: </label>
+        <input type="number" name="cliente" required><br><br>
+
+        <label for="fecha_apertura" class="form-label">Fecha de Apertura:</label>
+        <input type="date" name="fecha_apertura" id="fecha_apertura" class="form-control" required>
+        <label for="fecha_cierre" class="form-label">Fecha de Cierre:</label>
+        <input type="date" name="fecha_cierre" id="fecha_cierre" class="form-control" required>
+
+        <label>¿Es mantenimiento?: </label>
+        <select name="es_mantenimiento">
+            <option value="1">Sí</option>
+            <option value="0">No</option>
+        </select><br><br>
+
+        <label>Tipo incidencia: </label>
+        <input type="number" name="tipo_incidencia" required><br><br>
+
+        <label>Modelo IA:</label>
+        <select name="model">
+            <option value="regression">Regresión Lineal</option>
+            <option value="tree">Árbol de Decisión</option>
+            <option value="forest">Random Forest</option>
+        </select><br><br>
+
+        <button type="submit">Clasificar</button>
+    </form>
+
+    {% if result %}
+        <h2>Resultado: {{ result }}</h2>
+    {% endif %}
+
+    {% if graphic %}
+        <h2>Gráfica de predicción del modelo</h2>
+<       <img src="{{ url_for('static', filename=graphic) }}" width="500" alt="Gráfico">
+    {% endif %}
+
+    {% if graphics %}
+        <h2>Gráficas de los árboles del modelo Random Forest</h2>
+        <div>
+            {% for graph in graphics %}
+                <img src="{{ url_for('static', filename=graph) }}" width="500" alt="Árbol de decisión {{ loop.index }}">
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+</body>
+</html>
