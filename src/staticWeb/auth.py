@@ -1,4 +1,3 @@
-# src/auth.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from src.database.database import create_user, authenticate_user
@@ -15,8 +14,7 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Solo almacena id, username en session
-    # Podrías cargar más datos si quieres
+    # Almacena id, username en session
     return User(user_id, None)
 
 @auth_bp.route('/register', methods=['GET', 'POST'])

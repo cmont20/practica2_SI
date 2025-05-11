@@ -1,5 +1,3 @@
-# src/reports/pdf_reports.py
-
 import os
 import sqlite3
 from io import BytesIO
@@ -8,20 +6,16 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet
 
-# Usar backend no interactivo para evitar problemas de GUI
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# Ruta absoluta a la base de datos (resuelve según la ubicación de este script)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR,'..', '..', 'database', 'data.db')
 
 
 def fetch_client_metrics(top_n=10):
-    """
-    Obtiene métricas del top N de clientes: total incidencias, tiempo medio de resolución (días) y satisfacción media.
-    """
+   # Query para el top N de clientes: total incidencias, tiempo medio de resolución y satisfacción media.
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(
@@ -44,12 +38,7 @@ def fetch_client_metrics(top_n=10):
 
 
 def generate_charts(metrics):
-    """
-    Genera y devuelve gráficos como objetos BytesIO:
-    - Barras de incidencias
-    - Barras de tiempo medio de resolución
-    - Scatter de tiempo medio vs satisfacción
-    """
+    #Crea las graficas como objetos BytesIO
     names = [row[1] for row in metrics]
     totals = [row[2] for row in metrics]
     times = [row[3] for row in metrics]
@@ -100,11 +89,7 @@ def generate_charts(metrics):
 
 
 def generate_pdf_report(output_path, top_n=10):
-    """
-    Genera un informe en PDF con el top N de clientes, incluyendo métricas y gráficos.
-
-    output_path puede ser una ruta de archivo o un objeto BytesIO.
-    """
+    # Genera el informe en pdf con las metricas obtenidas
     doc = SimpleDocTemplate(output_path, pagesize=landscape(A4))
     elements = []
     styles = getSampleStyleSheet()
@@ -138,5 +123,4 @@ def generate_pdf_report(output_path, top_n=10):
             img = Image(buf, width=400, height=200)
             elements.append(img)
             elements.append(Spacer(1, 12))
-
     doc.build(elements)

@@ -9,7 +9,7 @@ from datetime import datetime
 
 
 app = Flask(__name__)
-app.secret_key = 'TU_SECRET_KEY_AQUI'
+app.secret_key = 'SECRET_KEY'
 
 login_manager.init_app(app)
 app.register_blueprint(auth_bp)
